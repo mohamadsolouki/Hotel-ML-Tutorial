@@ -1,0 +1,214 @@
+{
+  "features": [
+    "lead_time",
+    "arrival_date_year",
+    "arrival_date_week_number",
+    "arrival_date_day_of_month",
+    "stays_in_weekend_nights",
+    "stays_in_week_nights",
+    "adults",
+    "children",
+    "babies",
+    "is_repeated_guest",
+    "previous_cancellations",
+    "previous_bookings_not_canceled",
+    "booking_changes",
+    "days_in_waiting_list",
+    "adr",
+    "required_car_parking_spaces",
+    "total_of_special_requests"
+  ],
+  "categorical_features": [
+    "hotel",
+    "meal",
+    "market_segment",
+    "distribution_channel",
+    "deposit_type",
+    "customer_type"
+  ],
+  "results": {
+    "logistic_regression": {
+      "accuracy": 0.7977217522405562,
+      "precision": 0.8615162974968485,
+      "recall": 0.5408705483323912,
+      "f1_score": 0.6645367412140575,
+      "roc_auc": 0.8374151052722639,
+      "confusion_matrix": [
+        [
+          14264,
+          769
+        ],
+        [
+          4061,
+          4784
+        ]
+      ],
+      "true_negatives": 14264,
+      "false_positives": 769,
+      "false_negatives": 4061,
+      "true_positives": 4784
+    },
+    "random_forest": {
+      "accuracy": 0.8375910880308234,
+      "precision": 0.8770305146500683,
+      "recall": 0.6531373657433578,
+      "f1_score": 0.7487039917055469,
+      "roc_auc": 0.9104638384211227,
+      "confusion_matrix": [
+        [
+          14223,
+          810
+        ],
+        [
+          3068,
+          5777
+        ]
+      ],
+      "true_negatives": 14223,
+      "false_positives": 810,
+      "false_negatives": 3068,
+      "true_positives": 5777
+    },
+    "gradient_boosting": {
+      "accuracy": 0.8277912723008627,
+      "precision": 0.8570997434736684,
+      "recall": 0.6421707179197287,
+      "f1_score": 0.734229576008273,
+      "roc_auc": 0.8955702880457792,
+      "confusion_matrix": [
+        [
+          14086,
+          947
+        ],
+        [
+          3165,
+          5680
+        ]
+      ],
+      "true_negatives": 14086,
+      "false_positives": 947,
+      "false_negatives": 3165,
+      "true_positives": 5680
+    },
+    "decision_tree": {
+      "accuracy": 0.8210067844878131,
+      "precision": 0.8580604731317563,
+      "recall": 0.6192198982475975,
+      "f1_score": 0.7193328079852902,
+      "roc_auc": 0.880215288189988,
+      "confusion_matrix": [
+        [
+          14127,
+          906
+        ],
+        [
+          3368,
+          5477
+        ]
+      ],
+      "true_negatives": 14127,
+      "false_positives": 906,
+      "false_negatives": 3368,
+      "true_positives": 5477
+    },
+    "knn": {
+      "accuracy": 0.8188709272133344,
+      "precision": 0.7798415056958891,
+      "recall": 0.7120407009609949,
+      "f1_score": 0.7444004491460315,
+      "roc_auc": 0.8768323368634229,
+      "confusion_matrix": [
+        [
+          13255,
+          1778
+        ],
+        [
+          2547,
+          6298
+        ]
+      ],
+      "true_negatives": 13255,
+      "false_positives": 1778,
+      "false_negatives": 2547,
+      "true_positives": 6298
+    }
+  },
+  "feature_importances": {
+    "random_forest": {
+      "lead_time": 0.12268605028446783,
+      "arrival_date_year": 0.02100545468627243,
+      "arrival_date_week_number": 0.025364811655380664,
+      "arrival_date_day_of_month": 0.018226820708026458,
+      "stays_in_weekend_nights": 0.01033089076582299,
+      "stays_in_week_nights": 0.01770592297511556,
+      "adults": 0.009500549224461148,
+      "children": 0.004417855104714886,
+      "babies": 0.0005543542261485892,
+      "is_repeated_guest": 0.003387554181347746,
+      "previous_cancellations": 0.08363570979781283,
+      "previous_bookings_not_canceled": 0.007088987015597412,
+      "booking_changes": 0.03610298262825293,
+      "days_in_waiting_list": 0.005004861185978039,
+      "adr": 0.04808874711606866,
+      "required_car_parking_spaces": 0.037412851463211654,
+      "total_of_special_requests": 0.09530207383676886,
+      "hotel": 0.01185067138668462,
+      "meal": 0.008891305624456941,
+      "market_segment": 0.0799926995914271,
+      "distribution_channel": 0.021250887556003305,
+      "deposit_type": 0.2893072136431804,
+      "customer_type": 0.04289074534279903
+    },
+    "gradient_boosting": {
+      "lead_time": 0.09729566934496592,
+      "arrival_date_year": 0.01177316839389305,
+      "arrival_date_week_number": 0.011552359301988542,
+      "arrival_date_day_of_month": 0.0026888333901602043,
+      "stays_in_weekend_nights": 0.0021176005963552402,
+      "stays_in_week_nights": 0.005777319227133654,
+      "adults": 0.002519149831874487,
+      "children": 0.0011662762720599672,
+      "babies": 9.02415771484325e-05,
+      "is_repeated_guest": 0.00030017827801296786,
+      "previous_cancellations": 0.06998460465388702,
+      "previous_bookings_not_canceled": 0.012219756041209931,
+      "booking_changes": 0.02101891631512756,
+      "days_in_waiting_list": 0.001627973335158081,
+      "adr": 0.023866651629131104,
+      "required_car_parking_spaces": 0.03820867535721507,
+      "total_of_special_requests": 0.09653263494160468,
+      "hotel": 0.00502482970481336,
+      "meal": 0.00258323721794584,
+      "market_segment": 0.0862183401774753,
+      "distribution_channel": 0.0015330742399628189,
+      "deposit_type": 0.478678517140065,
+      "customer_type": 0.027221993032811868
+    },
+    "decision_tree": {
+      "lead_time": 0.09243271099222561,
+      "arrival_date_year": 0.0174200502026681,
+      "arrival_date_week_number": 0.00800840867692981,
+      "arrival_date_day_of_month": 0.003273389548190765,
+      "stays_in_weekend_nights": 0.0011115857841454773,
+      "stays_in_week_nights": 0.002162665170328869,
+      "adults": 0.0008006944927633628,
+      "children": 0.0010547617730243969,
+      "babies": 0.0,
+      "is_repeated_guest": 4.7181376446649516e-05,
+      "previous_cancellations": 0.07026683145825185,
+      "previous_bookings_not_canceled": 0.008787495311843885,
+      "booking_changes": 0.01632690037538685,
+      "days_in_waiting_list": 0.0005173108717764529,
+      "adr": 0.01163974970504986,
+      "required_car_parking_spaces": 0.03867971316518604,
+      "total_of_special_requests": 0.09922035545953954,
+      "hotel": 0.006005656025217414,
+      "meal": 0.0036215649035082533,
+      "market_segment": 0.08710914887606476,
+      "distribution_channel": 0.0004140367414372779,
+      "deposit_type": 0.49888222106001034,
+      "customer_type": 0.032217568030004355
+    }
+  },
+  "best_model": "random_forest"
+}

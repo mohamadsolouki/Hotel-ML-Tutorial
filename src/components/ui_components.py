@@ -280,6 +280,143 @@ def apply_custom_css():
             direction: ltr;
             vertical-align: middle;
         }
+        
+        /* Enhanced paragraph styling */
+        .styled-text {
+            background: linear-gradient(135deg, #F8FAFC 0%, #EDF2F7 100%);
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+            border-left: 4px solid #3D5A80;
+            line-height: 1.7;
+            color: #2D3748;
+            font-size: 1rem;
+        }
+        
+        /* Insight cards */
+        .insight-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-top: 3px solid #1E3A5F;
+        }
+        
+        .insight-card .insight-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #1E3A5F;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .insight-card .insight-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1E3A5F;
+            margin: 0.5rem 0;
+        }
+        
+        .insight-card .insight-description {
+            color: #64748B;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        /* Key finding boxes */
+        .finding-box {
+            background: linear-gradient(135deg, #1E3A5F 0%, #2C5282 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            color: white;
+        }
+        
+        .finding-box .finding-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .finding-box .finding-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .finding-box .finding-detail {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .stat-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1.25rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-bottom: 3px solid #2C7A7B;
+        }
+        
+        .stat-item .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1E3A5F;
+        }
+        
+        .stat-item .stat-label {
+            color: #64748B;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+        
+        /* Comparison cards */
+        .comparison-row {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .comparison-card {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .comparison-card.highlight {
+            border: 2px solid #EE6C4D;
+        }
+        
+        .comparison-card .comp-label {
+            font-size: 0.85rem;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .comparison-card .comp-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1E3A5F;
+            margin: 0.5rem 0;
+        }
+        
+        /* Trend indicator */
+        .trend-up { color: #38A169; }
+        .trend-down { color: #E53E3E; }
+        .trend-neutral { color: #718096; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -593,5 +730,138 @@ def render_progress_stepper(
     st.markdown(f"""
     <div style="background: white; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
         {html_steps}
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def render_styled_text(text: str, icon: Optional[str] = None):
+    """
+    Render styled paragraph text with better UI.
+    
+    Parameters:
+    -----------
+    text : str
+        The text content to display.
+    icon : str, optional
+        Material icon name to display.
+    """
+    icon_html = f'<span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px; color: #3D5A80;">{icon}</span>' if icon else ''
+    st.markdown(f"""
+    <div class="styled-text">
+        {icon_html}{text}
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def render_insight_card(
+    title: str,
+    value: str,
+    description: str,
+    icon: str = "insights"
+):
+    """
+    Render an insight card with value highlight.
+    
+    Parameters:
+    -----------
+    title : str
+        Insight title.
+    value : str
+        Main value to highlight.
+    description : str
+        Description text.
+    icon : str
+        Material icon name.
+    """
+    st.markdown(f"""
+    <div class="insight-card">
+        <div class="insight-title">
+            <span class="material-symbols-outlined">{icon}</span>
+            {title}
+        </div>
+        <div class="insight-value">{value}</div>
+        <div class="insight-description">{description}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def render_finding_box(
+    title: str,
+    detail: str,
+    icon: str = "lightbulb"
+):
+    """
+    Render a key finding box.
+    
+    Parameters:
+    -----------
+    title : str
+        Finding title/headline.
+    detail : str
+        Detailed description.
+    icon : str
+        Material icon name.
+    """
+    st.markdown(f"""
+    <div class="finding-box">
+        <div class="finding-icon">
+            <span class="material-symbols-outlined">{icon}</span>
+        </div>
+        <div class="finding-title">{title}</div>
+        <div class="finding-detail">{detail}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def render_stats_grid(stats: List[Dict[str, str]]):
+    """
+    Render a grid of statistics.
+    
+    Parameters:
+    -----------
+    stats : List[Dict]
+        List of dicts with 'value' and 'label' keys.
+    """
+    items_html = "".join([
+        f'<div class="stat-item"><div class="stat-value">{s["value"]}</div><div class="stat-label">{s["label"]}</div></div>'
+        for s in stats
+    ])
+    st.markdown(f"""
+    <div class="stats-grid">
+        {items_html}
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def render_comparison(
+    label1: str,
+    value1: str,
+    label2: str,
+    value2: str,
+    highlight_first: bool = False
+):
+    """
+    Render a side-by-side comparison.
+    
+    Parameters:
+    -----------
+    label1, label2 : str
+        Labels for each value.
+    value1, value2 : str
+        Values to compare.
+    highlight_first : bool
+        Whether to highlight the first card.
+    """
+    highlight_class = "highlight" if highlight_first else ""
+    st.markdown(f"""
+    <div class="comparison-row">
+        <div class="comparison-card {highlight_class}">
+            <div class="comp-label">{label1}</div>
+            <div class="comp-value">{value1}</div>
+        </div>
+        <div class="comparison-card {'highlight' if not highlight_first else ''}">
+            <div class="comp-label">{label2}</div>
+            <div class="comp-value">{value2}</div>
+        </div>
     </div>
     """, unsafe_allow_html=True)

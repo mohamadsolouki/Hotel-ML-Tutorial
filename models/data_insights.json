@@ -1,0 +1,286 @@
+{
+  "overview": {
+    "total_bookings": 119388,
+    "date_range": "2015 - 2017",
+    "hotel_types": [
+      "Resort Hotel",
+      "City Hotel"
+    ],
+    "cancellation_rate": 37.041411197105234,
+    "canceled_bookings": 44223,
+    "completed_bookings": 75165
+  },
+  "hotel_comparison": {
+    "Resort Hotel": {
+      "bookings": 40059,
+      "cancellation_rate": 27.764048029156996,
+      "avg_adr": 94.95545919768342
+    },
+    "City Hotel": {
+      "bookings": 79329,
+      "cancellation_rate": 41.72622874358684,
+      "avg_adr": 105.23772189237228
+    }
+  },
+  "seasonal_patterns": {
+    "January": {
+      "bookings": 5929,
+      "cancellation_rate": 30.477314892899308,
+      "avg_adr": 70.36124135604655
+    },
+    "February": {
+      "bookings": 8068,
+      "cancellation_rate": 33.41596430342092,
+      "avg_adr": 73.58227565691622
+    },
+    "March": {
+      "bookings": 9792,
+      "cancellation_rate": 32.14869281045752,
+      "avg_adr": 80.14530535130719
+    },
+    "April": {
+      "bookings": 11089,
+      "cancellation_rate": 40.79718640093787,
+      "avg_adr": 100.38078997204437
+    },
+    "May": {
+      "bookings": 11791,
+      "cancellation_rate": 39.66584683232974,
+      "avg_adr": 108.69551607158003
+    },
+    "June": {
+      "bookings": 10939,
+      "cancellation_rate": 41.45717158789652,
+      "avg_adr": 116.67219215650427
+    },
+    "July": {
+      "bookings": 12661,
+      "cancellation_rate": 37.453597662111996,
+      "avg_adr": 126.78801279519786
+    },
+    "August": {
+      "bookings": 13877,
+      "cancellation_rate": 37.753116667867694,
+      "avg_adr": 140.11152266339988
+    },
+    "September": {
+      "bookings": 10508,
+      "cancellation_rate": 39.17015607156452,
+      "avg_adr": 105.04965740388276
+    },
+    "October": {
+      "bookings": 11160,
+      "cancellation_rate": 38.04659498207885,
+      "avg_adr": 87.90887903225806
+    },
+    "November": {
+      "bookings": 6794,
+      "cancellation_rate": 31.233441271710333,
+      "avg_adr": 73.79496173093906
+    },
+    "December": {
+      "bookings": 6780,
+      "cancellation_rate": 34.97050147492625,
+      "avg_adr": 81.07677581120944
+    }
+  },
+  "peak_analysis": {
+    "peak_month": "August",
+    "peak_bookings": 13877,
+    "low_month": "January",
+    "low_bookings": 5929,
+    "highest_adr_month": "August",
+    "highest_adr": 140.11152266339988,
+    "lowest_adr_month": "January",
+    "lowest_adr": 70.36124135604655
+  },
+  "lead_time": {
+    "average": 104.01123228465173,
+    "median": 69.0,
+    "max": 737,
+    "cancellation_by_group": {
+      "0-7 days": 10.984254906350273,
+      "8-30 days": 27.86392405063291,
+      "31-90 days": 37.69626421223606,
+      "91-180 days": 44.710465600060516,
+      "181-365 days": 55.456528802859395,
+      "365+ days": 67.66200762388819
+    }
+  },
+  "guest_demographics": {
+    "avg_adults": 1.8564009783227795,
+    "avg_children": 0.10388816296445204,
+    "bookings_with_children": 8590,
+    "children_rate": 7.19502797601099,
+    "top_countries": {
+      "PRT": {
+        "count": 48589,
+        "percentage": 40.698395148591146
+      },
+      "GBR": {
+        "count": 12128,
+        "percentage": 10.15847488859852
+      },
+      "FRA": {
+        "count": 10415,
+        "percentage": 8.723657318993535
+      },
+      "ESP": {
+        "count": 8568,
+        "percentage": 7.176600663383255
+      },
+      "DEU": {
+        "count": 7287,
+        "percentage": 6.103628505377425
+      },
+      "ITA": {
+        "count": 3766,
+        "percentage": 3.1544208798204174
+      },
+      "IRL": {
+        "count": 3375,
+        "percentage": 2.8269172781184038
+      },
+      "BEL": {
+        "count": 2342,
+        "percentage": 1.9616711897343115
+      },
+      "BRA": {
+        "count": 2224,
+        "percentage": 1.862833785640098
+      },
+      "NLD": {
+        "count": 2104,
+        "percentage": 1.7623211713069993
+      }
+    }
+  },
+  "market_segments": {
+    "Online TA": {
+      "count": 56477,
+      "percentage": 47.30542433075351,
+      "cancellation_rate": 36.721143120208225
+    },
+    "Offline TA/TO": {
+      "count": 24218,
+      "percentage": 20.285120782658222,
+      "cancellation_rate": 34.31332067057561
+    },
+    "Groups": {
+      "count": 19810,
+      "percentage": 16.592957416155727,
+      "cancellation_rate": 61.065118626956085
+    },
+    "Direct": {
+      "count": 12606,
+      "percentage": 10.55885013569203,
+      "cancellation_rate": 15.341900682214819
+    },
+    "Corporate": {
+      "count": 5295,
+      "percentage": 4.435119107447984,
+      "cancellation_rate": 18.73465533522191
+    },
+    "Complementary": {
+      "count": 743,
+      "percentage": 0.62234060374577,
+      "cancellation_rate": 13.055181695827725
+    },
+    "Aviation": {
+      "count": 237,
+      "percentage": 0.19851241330787012,
+      "cancellation_rate": 21.940928270042196
+    },
+    "Undefined": {
+      "count": 2,
+      "percentage": 0.00167521023888498,
+      "cancellation_rate": 100.0
+    }
+  },
+  "deposit_types": {
+    "No Deposit": {
+      "count": 104640,
+      "percentage": 87.64699969846215,
+      "cancellation_rate": 28.37729357798165
+    },
+    "Non Refund": {
+      "count": 14586,
+      "percentage": 12.21730827218816,
+      "cancellation_rate": 99.36240230357878
+    },
+    "Refundable": {
+      "count": 162,
+      "percentage": 0.13569202934968339,
+      "cancellation_rate": 22.22222222222222
+    }
+  },
+  "special_requests": {
+    "0": {
+      "count": 70316,
+      "cancellation_rate": 47.72029125661301
+    },
+    "1": {
+      "count": 33226,
+      "cancellation_rate": 22.02492024318305
+    },
+    "2": {
+      "count": 12969,
+      "cancellation_rate": 22.098851106484695
+    },
+    "3": {
+      "count": 2497,
+      "cancellation_rate": 17.861433720464557
+    },
+    "4": {
+      "count": 340,
+      "cancellation_rate": 10.588235294117647
+    },
+    "5": {
+      "count": 40,
+      "cancellation_rate": 5.0
+    }
+  },
+  "repeated_guests": {
+    "count": 3809,
+    "percentage": 3.1904378999564442,
+    "repeat_cancel_rate": 14.491992648989235,
+    "new_cancel_rate": 37.78454563545281
+  },
+  "revenue": {
+    "total_potential": 42718161.33,
+    "lost_to_cancellations": 16721837.120000001,
+    "lost_percentage": 39.144561936603374,
+    "realized": 25996324.21,
+    "avg_stay_nights": 3.427865447113613,
+    "avg_adr": 101.78765018259791
+  },
+  "yearly_trends": {
+    "2015": {
+      "bookings": 21996,
+      "cancellation_rate": 37.01582105837425,
+      "avg_adr": 87.17851518457901
+    },
+    "2016": {
+      "bookings": 56706,
+      "cancellation_rate": 35.862166261065845,
+      "avg_adr": 98.23236888512679
+    },
+    "2017": {
+      "bookings": 40686,
+      "cancellation_rate": 38.69881531730817,
+      "avg_adr": 114.64092439659835
+    }
+  },
+  "key_findings": [
+    "City Hotel has a significantly higher cancellation rate (41.7%) compared to Resort Hotel (27.8%)",
+    "Group bookings have the highest cancellation rate at 61.1%, while Direct bookings have the lowest at 15.3%",
+    "Non-refundable deposits lead to 99.4% cancellation rate - guests who select this option almost always cancel",
+    "Lead time is a strong predictor: bookings made 365+ days in advance have a 67.7% cancellation rate vs only 11.0% for last-minute bookings",
+    "Special requests indicate commitment: 0 requests = 47.7% cancellation, but 5 requests = only 5.0%",
+    "Repeated guests cancel only 14.5% of the time compared to 37.8% for new guests",
+    "August is the peak season with 13,877 bookings and highest ADR ($140.11)",
+    "January is the low season with 5,929 bookings and lowest ADR ($70.36)",
+    "Portugal (PRT) dominates bookings at 40.7%, followed by UK (10.2%) and France (8.7%)",
+    "Cancellations cost the hotels approximately $16,721,837 in lost revenue (39.1% of potential revenue)"
+  ]
+}

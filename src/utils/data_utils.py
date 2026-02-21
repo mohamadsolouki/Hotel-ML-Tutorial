@@ -352,3 +352,121 @@ def encode_categorical_features(
             encodings[col] = freq_map
     
     return df_encoded, encodings
+
+
+# =============================================================================
+# PRE-TRAINED MODEL LOADING
+# =============================================================================
+
+@st.cache_resource
+def load_pretrained_models() -> Dict[str, Any]:
+    """
+    Load pre-trained models from the models directory.
+    
+    Returns:
+    --------
+    Dict containing models, scaler, label_encoders, and metadata.
+    """
+    import joblib
+    import json
+    
+    models_dir = Path(__file__).parent.parent.parent / "models"
+    
+    result = {
+        'models': {},
+        'scaler': None,
+        'label_encoders': None,
+        'metadata': None
+    }
+    
+    try:
+        # Load individual models
+        model_names = ['logistic_regression', 'random_forest', 'gradient_boosting', 
+                       'decision_tree', 'knn']
+        for name in model_names:
+            model_path = models_dir / f"{name}.joblib"
+            if model_path.exists():
+                result['models'][name] = joblib.load(model_path)
+        
+        # Load scaler
+        scaler_path = models_dir / "scaler.joblib"
+        if scaler_path.exists():
+            result['scaler'] = joblib.load(scaler_path)
+        
+        # Load label encoders
+        le_path = models_dir / "label_encoders.joblib"
+        if le_path.exists():
+            result['label_encoders'] = joblib.load(le_path)
+        
+        # Load metadata
+        metadata_path = models_dir / "model_metadata.json"
+        if metadata_path.exists():
+            with open(metadata_path, 'r') as f:
+                result['metadata'] = json.load(f)
+                
+    except Exception as e:
+        st.warning(f"Error loading pre-trained models: {e}")
+    
+    return result
+
+
+@st.cache_data
+def load_data_insights() -> Dict[str, Any]:
+    """
+    Load pre-computed data insights from JSON file.
+    
+    Returns:
+    --------
+    Dict containing all data insights and key findings.
+    """
+    import json
+    
+    models_dir = Path(__file__).parent.parent.parent / "models"
+    insights_path = models_dir / "data_insights.json"
+    
+    if insights_path.exists():
+        with open(insights_path, 'r') as f:
+            return json.load(f)
+    
+    return {}
+
+
+def get_key_findings() -> List[str]:
+    """
+    Get the key findings from the data analysis.
+    
+    Returns:
+    --------
+    List of key finding strings.
+    """
+    insights = load_data_insights()
+    return insights.get('key_findings', [])
+
+
+def get_seasonal_insights() -> Dict[str, Any]:
+    """
+    Get seasonal pattern insights.
+    
+    Returns:
+    --------
+    Dict with seasonal analysis data.
+    """
+    insights = load_data_insights()
+    return {
+        'patterns': insights.get('seasonal_patterns', {}),
+        'peak': insights.get('peak_analysis', {})
+    }
+
+
+def get_model_results() -> Dict[str, Any]:
+    """
+    Get pre-trained model evaluation results.
+    
+    Returns:
+    --------
+    Dict with model performance metrics.
+    """
+    pretrained = load_pretrained_models()
+    if pretrained['metadata']:
+        return pretrained['metadata'].get('results', {})
+    return {}

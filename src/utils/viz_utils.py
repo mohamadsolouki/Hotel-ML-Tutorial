@@ -33,11 +33,6 @@ def get_plotly_template() -> Dict[str, Any]:
             'color': COLORS['text_primary'],
             'size': 12
         },
-        'title': {
-            'font': {'size': 18, 'color': COLORS['primary']},
-            'x': 0.5,
-            'xanchor': 'center'
-        },
         'xaxis': {
             'gridcolor': '#E8E8E8',
             'linecolor': '#E8E8E8',
@@ -58,6 +53,20 @@ def get_plotly_template() -> Dict[str, Any]:
         },
         'margin': {'t': 60, 'l': 60, 'r': 30, 'b': 60}
     }
+
+
+def apply_chart_style(fig: go.Figure, title: str) -> go.Figure:
+    """Apply consistent styling to a plotly figure."""
+    fig.update_layout(
+        **get_plotly_template(),
+        title={
+            'text': title,
+            'font': {'size': 18, 'color': COLORS['primary']},
+            'x': 0.5,
+            'xanchor': 'center'
+        }
+    )
+    return fig
 
 
 def plot_distribution(
@@ -102,9 +111,8 @@ def plot_distribution(
         opacity=0.7
     ))
     
+    apply_chart_style(fig, title)
     fig.update_layout(
-        **get_plotly_template(),
-        title=title,
         xaxis_title=column,
         yaxis_title='Frequency',
         showlegend=False
@@ -186,7 +194,7 @@ def plot_categorical_distribution(
             yaxis_title='Count'
         )
     
-    fig.update_layout(**get_plotly_template(), title=title)
+    apply_chart_style(fig, title)
     return fig
 
 
@@ -253,7 +261,7 @@ def plot_time_series(
                     name=f'Trend (MA{window})'
                 ))
     
-    fig.update_layout(**get_plotly_template(), title=title)
+    apply_chart_style(fig, title)
     return fig
 
 
@@ -318,7 +326,7 @@ def plot_monthly_pattern(
             fillcolor=f"rgba(30, 58, 95, 0.1)"
         ))
     
-    fig.update_layout(**get_plotly_template(), title=title)
+    apply_chart_style(fig, title)
     return fig
 
 
@@ -380,7 +388,7 @@ def plot_heatmap(
         textfont={"size": 10}
     ))
     
-    fig.update_layout(**get_plotly_template(), title=title)
+    apply_chart_style(fig, title)
     return fig
 
 
@@ -419,9 +427,8 @@ def plot_correlation_matrix(
         textfont={"size": 9}
     ))
     
+    apply_chart_style(fig, title)
     fig.update_layout(
-        **get_plotly_template(),
-        title=title,
         height=600,
         width=800
     )
@@ -464,7 +471,8 @@ def plot_box_comparison(
         color_discrete_sequence=PLOTLY_COLORS
     )
     
-    fig.update_layout(**get_plotly_template(), title=title, showlegend=False)
+    apply_chart_style(fig, title)
+    fig.update_layout(showlegend=False)
     
     # Order months if applicable
     if categorical_column == 'arrival_date_month':
@@ -535,9 +543,8 @@ def plot_cancellation_analysis(
         secondary_y=True
     )
     
+    apply_chart_style(fig, title)
     fig.update_layout(
-        **get_plotly_template(),
-        title=title,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
     fig.update_yaxes(title_text="Booking Count", secondary_y=False)
@@ -585,9 +592,8 @@ def plot_pie_chart(
         textposition='outside'
     )])
     
+    apply_chart_style(fig, title)
     fig.update_layout(
-        **get_plotly_template(),
-        title=title,
         showlegend=True,
         legend=dict(orientation="h", yanchor="bottom", y=-0.2)
     )
@@ -632,9 +638,8 @@ def plot_feature_importance(
         marker_color=colors
     ))
     
+    apply_chart_style(fig, title)
     fig.update_layout(
-        **get_plotly_template(),
-        title=title,
         xaxis_title='Importance',
         yaxis_title='Feature',
         height=max(400, len(feature_names) * 25)
@@ -682,9 +687,8 @@ def plot_confusion_matrix(
         showscale=False
     ))
     
+    apply_chart_style(fig, title)
     fig.update_layout(
-        **get_plotly_template(),
-        title=title,
         height=400,
         width=500
     )
@@ -734,9 +738,8 @@ def plot_roc_curve(
         line=dict(color='gray', width=2, dash='dash')
     ))
     
+    apply_chart_style(fig, title)
     fig.update_layout(
-        **get_plotly_template(),
-        title=title,
         xaxis_title='False Positive Rate',
         yaxis_title='True Positive Rate',
         legend=dict(x=0.6, y=0.1),

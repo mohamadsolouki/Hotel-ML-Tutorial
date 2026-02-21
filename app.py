@@ -73,7 +73,7 @@ def render_sidebar():
         st.markdown("""
         <div style="text-align: center; padding: 1rem 0;">
             <h1 style="color: #1E3A5F; margin: 0;">Hotel Analytics</h1>
-            <p style="color: #7F8C8D; font-size: 0.9rem;">Data Science Learning Platform</p>
+            <p style="color: #7F8C8D; font-size: 0.9rem;">Data Science Platform</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -100,40 +100,10 @@ def render_sidebar():
         
         st.markdown("---")
         
-        # Quick stats
-        st.markdown("### Dataset Overview")
-        
-        try:
-            df = get_data()
-            st.metric("Total Records", f"{len(df):,}")
-            st.metric("Features", f"{len(df.columns)}")
-            st.metric("Cancellation Rate", f"{df['is_canceled'].mean()*100:.1f}%")
-        except Exception:
-            st.info("Loading data...")
-        
-        st.markdown("---")
-        
-        # Learning progress
-        st.markdown("### Learning Progress")
-        
-        progress_items = {
-            "Data Understanding": st.session_state.get('completed_data', False),
-            "EDA Completed": st.session_state.get('completed_eda', False),
-            "Models Trained": 'model_comparison' in st.session_state,
-            "Predictions Made": 'batch_predictions' in st.session_state
-        }
-        
-        completed = sum(progress_items.values())
-        st.progress(completed / len(progress_items))
-        st.caption(f"{completed}/{len(progress_items)} sections completed")
-        
-        st.markdown("---")
-        
         # Footer
         st.markdown("""
         <div style="text-align: center; color: #7F8C8D; font-size: 0.8rem;">
             <p>Built with Streamlit</p>
-            <p>Data Science Tutorial</p>
         </div>
         """, unsafe_allow_html=True)
     
