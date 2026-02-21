@@ -377,10 +377,10 @@ def render_pretrained_results():
             """**Key Predictors of Cancellation:**
             
             1. **lead_time** (12.3%): Longer lead times = higher cancellation risk
-            2. **deposit_type** (11.9%): Non-refundable deposits have 99% cancellation rate
+            2. **market_segment** (11.9%): Group bookings cancel 61% of the time (and often require non-refundable deposits)
             3. **adr** (10.9%): Higher daily rates correlate with more cancellations
             4. **previous_cancellations** (8.4%): Past behavior predicts future behavior
-            5. **market_segment** (6.9%): Group bookings cancel 61% of the time""",
+            5. **special_requests** (6.9%): More requests indicate commitment and lower cancellation risk""",
             title="Feature Importance Insights",
             box_type="info"
         )

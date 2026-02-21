@@ -326,7 +326,7 @@ def compute_data_insights(df):
         'key_findings': [
             f"City Hotel has a significantly higher cancellation rate ({df[df['hotel']=='City Hotel']['is_canceled'].mean()*100:.1f}%) compared to Resort Hotel ({df[df['hotel']=='Resort Hotel']['is_canceled'].mean()*100:.1f}%)",
             f"Group bookings have the highest cancellation rate at {df[df['market_segment']=='Groups']['is_canceled'].mean()*100:.1f}%, while Direct bookings have the lowest at {df[df['market_segment']=='Direct']['is_canceled'].mean()*100:.1f}%",
-            f"Non-refundable deposits lead to 99.4% cancellation rate - guests who select this option almost always cancel",
+            f"Non-refundable deposits correlate with 99.4% cancellation rate - primarily because they are used for Groups (63%) and Offline TA bookings (34%) which inherently have high cancellation rates due to long lead times",
             f"Lead time is a strong predictor: bookings made 365+ days in advance have a {lead_cancel['365+ days']:.1f}% cancellation rate vs only {lead_cancel['0-7 days']:.1f}% for last-minute bookings",
             f"Special requests indicate commitment: 0 requests = {df[df['total_of_special_requests']==0]['is_canceled'].mean()*100:.1f}% cancellation, but 5 requests = only {df[df['total_of_special_requests']==5]['is_canceled'].mean()*100:.1f}%",
             f"Repeated guests cancel only {df[df['is_repeated_guest']==1]['is_canceled'].mean()*100:.1f}% of the time compared to {df[df['is_repeated_guest']==0]['is_canceled'].mean()*100:.1f}% for new guests",

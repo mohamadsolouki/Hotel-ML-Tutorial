@@ -274,7 +274,7 @@
   "key_findings": [
     "City Hotel has a significantly higher cancellation rate (41.7%) compared to Resort Hotel (27.8%)",
     "Group bookings have the highest cancellation rate at 61.1%, while Direct bookings have the lowest at 15.3%",
-    "Non-refundable deposits lead to 99.4% cancellation rate - guests who select this option almost always cancel",
+    "Non-refundable deposits correlate with 99.4% cancellation rate - primarily because they are used for Groups (63%) and Offline TA bookings (34%) which inherently have high cancellation rates due to long lead times (avg 213 days)",
     "Lead time is a strong predictor: bookings made 365+ days in advance have a 67.7% cancellation rate vs only 11.0% for last-minute bookings",
     "Special requests indicate commitment: 0 requests = 47.7% cancellation, but 5 requests = only 5.0%",
     "Repeated guests cancel only 14.5% of the time compared to 37.8% for new guests",

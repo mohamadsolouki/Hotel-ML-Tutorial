@@ -619,17 +619,18 @@ def render_what_if_analysis(df: pd.DataFrame):
             """, unsafe_allow_html=True)
         
         render_info_box(
-            """**Critical Finding:**
+            """**Understanding This Pattern:**
             
-            Non-refundable deposits have a 99.4% cancellation rate - this is counterintuitive 
-            and suggests guests who select this option have already decided to cancel or are 
-            booking speculatively. Consider:
+            Non-refundable deposits correlate with 99.4% cancellation rate because they are primarily 
+            used for Groups (63%) and Offline TA bookings (34%), which inherently have high cancellation 
+            rates due to long lead times (avg 213 days). The deposit type is a proxy for booking type, 
+            not a cause of cancellations. Key insights:
             
-            1. Re-evaluating non-refundable rate offerings
-            2. Requiring immediate partial payment for non-refundable rates
-            3. Implementing stricter verification for non-refundable bookings""",
-            title="Important Discovery",
-            box_type="warning"
+            1. Group bookings naturally require non-refundable deposits due to coordination complexity
+            2. Long lead time bookings (where non-refundable rates are common) have inherently higher cancellation risk
+            3. Focus intervention strategies on the underlying factors: lead time, market segment, and booking changes""",
+            title="Data Interpretation",
+            box_type="info"
         )
     
     # Market segment analysis
