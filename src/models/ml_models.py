@@ -627,3 +627,320 @@ def get_model_explanation(model_type: str) -> Dict[str, str]:
         'cons': [],
         'use_case': 'N/A'
     })
+
+
+def load_pretrained_models() -> Dict[str, Any]:
+    """
+    Load pre-trained models from files.
+    
+    Returns:
+    --------
+    Dict[str, Any]
+        Dictionary containing models, scaler, encoders, and metadata.
+    """
+    import joblib
+    import json
+    
+    models_dir = Path(__file__).parent.parent.parent / 'models'
+    
+    result = {
+        'models': {},
+        'scaler': None,
+        'label_encoders': None,
+        'metadata': None,
+        'insights': None
+    }
+    
+    # Load scaler
+    scaler_path = models_dir / 'scaler.joblib'
+    if scaler_path.exists():
+        result['scaler'] = joblib.load(scaler_path)
+    
+    # Load label encoders
+    encoders_path = models_dir / 'label_encoders.joblib'
+    if encoders_path.exists():
+        result['label_encoders'] = joblib.load(encoders_path)
+    
+    # Load metadata
+    metadata_path = models_dir / 'model_metadata.json'
+    if metadata_path.exists():
+        with open(metadata_path, 'r') as f:
+            result['metadata'] = json.load(f)
+    
+    # Load insights
+    insights_path = models_dir / 'data_insights.json'
+    if insights_path.exists():
+        with open(insights_path, 'r') as f:
+            result['insights'] = json.load(f)
+    
+    # Load individual models
+    model_names = ['logistic_regression', 'random_forest', 'gradient_boosting', 
+                   'decision_tree', 'knn']
+    for model_name in model_names:
+        model_path = models_dir / f'{model_name}.joblib'
+        if model_path.exists():
+            result['models'][model_name] = joblib.load(model_path)
+    
+    return result
+
+
+def get_pretrained_model_results() -> Dict[str, Any]:
+    """
+    Get results from pre-trained models.
+    
+    Returns:
+    --------
+    Dict[str, Any]
+        Model results and insights.
+    """
+    data = load_pretrained_models()
+    
+    if data['metadata'] is None:
+        return None
+    
+    return {
+        'results': data['metadata'].get('results', {}),
+        'features': data['metadata'].get('features', []),
+        'feature_importance': data['metadata'].get('feature_importance', {}),
+        'insights': data.get('insights', {}),
+        'models': data['models'],
+        'scaler': data['scaler'],
+        'label_encoders': data['label_encoders']
+    }
+
+
+def load_data_insights() -> Dict[str, Any]:
+    """
+    Load pre-computed data insights.
+    
+    Returns:
+    --------
+    Dict[str, Any]
+        Data insights and key findings.
+    """
+    import json
+    
+    insights_path = Path(__file__).parent.parent.parent / 'models' / 'data_insights.json'
+    
+    if insights_path.exists():
+        with open(insights_path, 'r') as f:
+            return json.load(f)
+    
+    return {}
+
+
+class PretrainedModelWrapper:
+    """
+    Wrapper for pre-trained models that mimics CancellationPredictionModel interface.
+    """
+    
+    MODEL_NAMES = {
+        'logistic_regression': 'Logistic Regression',
+        'random_forest': 'Random Forest',
+        'gradient_boosting': 'Gradient Boosting',
+        'decision_tree': 'Decision Tree',
+        'knn': 'K-Nearest Neighbors'
+    }
+    
+    def __init__(
+        self,
+        model_key: str,
+        model,
+        metrics: Dict,
+        feature_importance: Dict = None,
+        scaler=None,
+        label_encoders=None,
+        features=None,
+        categorical_features=None
+    ):
+        self.model_type = model_key
+        self.model_name = self.MODEL_NAMES.get(model_key, model_key)
+        self.model = model
+        self.metrics = metrics
+        self.is_fitted = True
+        self._feature_importance = feature_importance or {}
+        self.scaler = scaler
+        self.label_encoders = label_encoders or {}
+        self.features = features or []
+        self.categorical_features = categorical_features or []
+        
+        # Reconstruct confusion matrix components
+        cm = metrics.get('confusion_matrix', [[0,0],[0,0]])
+        self.metrics['confusion_matrix'] = np.array(cm)
+    
+    def predict(self, df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Make predictions on new data using pretrained model.
+        
+        Parameters:
+        -----------
+        df : pd.DataFrame
+            Input data.
+        
+        Returns:
+        --------
+        Tuple[np.ndarray, np.ndarray]
+            Predictions and probabilities.
+        """
+        if self.model is None:
+            raise ValueError("Model is not loaded.")
+        
+        df_processed = df.copy()
+        
+        # Handle missing values
+        df_processed['children'] = df_processed['children'].fillna(0)
+        df_processed['agent'] = df_processed.get('agent', pd.Series([0.0]*len(df_processed))).fillna(0)
+        df_processed['company'] = df_processed.get('company', pd.Series([0.0]*len(df_processed))).fillna(0)
+        
+        # Encode categorical features
+        encoded_features = []
+        for col in self.categorical_features:
+            if col in df_processed.columns and col in self.label_encoders:
+                le = self.label_encoders[col]
+                # Handle unseen labels
+                df_processed[f'{col}_encoded'] = df_processed[col].astype(str).apply(
+                    lambda x: le.transform([x])[0] if x in le.classes_ else 0
+                )
+                encoded_features.append(f'{col}_encoded')
+        
+        # Build feature array
+        feature_columns = self.features + encoded_features
+        
+        # Extract features (handle missing columns)
+        X_data = []
+        for col in feature_columns:
+            if col in df_processed.columns:
+                X_data.append(df_processed[col].values)
+            else:
+                X_data.append(np.zeros(len(df_processed)))
+        
+        X = np.column_stack(X_data)
+        
+        # Scale features
+        if self.scaler is not None:
+            X = self.scaler.transform(X)
+        
+        # Make predictions
+        predictions = self.model.predict(X)
+        
+        if hasattr(self.model, 'predict_proba'):
+            probabilities = self.model.predict_proba(X)[:, 1]
+        else:
+            probabilities = predictions.astype(float)
+        
+        return predictions, probabilities
+        
+    def get_feature_importance(self) -> Optional[Dict[str, float]]:
+        """Get feature importance if available."""
+        return self._feature_importance
+    
+    def get_classification_report(self) -> str:
+        """Generate classification report from stored metrics."""
+        cm = self.metrics.get('confusion_matrix', np.array([[0,0],[0,0]]))
+        tn, fp, fn, tp = cm[0][0], cm[0][1], cm[1][0], cm[1][1]
+        
+        precision_0 = tn / (tn + fn) if (tn + fn) > 0 else 0
+        recall_0 = tn / (tn + fp) if (tn + fp) > 0 else 0
+        f1_0 = 2 * precision_0 * recall_0 / (precision_0 + recall_0) if (precision_0 + recall_0) > 0 else 0
+        
+        precision_1 = self.metrics.get('precision', 0)
+        recall_1 = self.metrics.get('recall', 0)
+        f1_1 = self.metrics.get('f1_score', 0)
+        
+        accuracy = self.metrics.get('accuracy', 0)
+        
+        report = f"""
+              precision    recall  f1-score   support
+
+           0       {precision_0:.2f}      {recall_0:.2f}      {f1_0:.2f}      {tn+fp}
+           1       {precision_1:.2f}      {recall_1:.2f}      {f1_1:.2f}      {fn+tp}
+
+    accuracy                           {accuracy:.2f}      {tn+fp+fn+tp}
+   macro avg       {(precision_0+precision_1)/2:.2f}      {(recall_0+recall_1)/2:.2f}      {(f1_0+f1_1)/2:.2f}      {tn+fp+fn+tp}
+weighted avg       {(precision_0*(tn+fp)+precision_1*(fn+tp))/(tn+fp+fn+tp):.2f}      {accuracy:.2f}      {(f1_0*(tn+fp)+f1_1*(fn+tp))/(tn+fp+fn+tp):.2f}      {tn+fp+fn+tp}
+"""
+        return report
+
+
+class PretrainedModelComparison:
+    """
+    Wrapper for comparing pre-trained models that mimics ModelComparison interface.
+    """
+    
+    def __init__(self):
+        self.models = {}
+        self.results_df = None
+        self._best_model_key = None
+        
+    @classmethod
+    def from_pretrained(cls) -> 'PretrainedModelComparison':
+        """Create a comparison object from pre-trained models."""
+        pretrained = get_pretrained_model_results()
+        
+        if not pretrained or not pretrained['results']:
+            return None
+        
+        comparison = cls()
+        
+        results = pretrained['results']
+        feature_importances = pretrained.get('feature_importance', {})
+        models = pretrained.get('models', {})
+        scaler = pretrained.get('scaler')
+        label_encoders = pretrained.get('label_encoders', {})
+        features = pretrained.get('features', [])
+        
+        # Get categorical features from metadata
+        data = load_pretrained_models()
+        categorical_features = data['metadata'].get('categorical_features', []) if data['metadata'] else []
+        
+        best_f1 = 0
+        rows = []
+        
+        for model_key, metrics in results.items():
+            # Create wrapper for each model
+            fi = feature_importances.get(model_key, {})
+            actual_model = models.get(model_key)
+            
+            wrapper = PretrainedModelWrapper(
+                model_key=model_key,
+                model=actual_model,
+                metrics=metrics,
+                feature_importance=fi,
+                scaler=scaler,
+                label_encoders=label_encoders,
+                features=features,
+                categorical_features=categorical_features
+            )
+            comparison.models[model_key] = wrapper
+            
+            # Track best model
+            if metrics.get('f1_score', 0) > best_f1:
+                best_f1 = metrics.get('f1_score', 0)
+                comparison._best_model_key = model_key
+            
+            # Build results row
+            rows.append({
+                'Model': wrapper.model_name,
+                'Accuracy': metrics.get('accuracy', 0),
+                'Precision': metrics.get('precision', 0),
+                'Recall': metrics.get('recall', 0),
+                'F1 Score': metrics.get('f1_score', 0),
+                'ROC AUC': metrics.get('roc_auc', 0)
+            })
+        
+        comparison.results_df = pd.DataFrame(rows)
+        return comparison
+    
+    def get_best_model(self) -> PretrainedModelWrapper:
+        """Get the best performing model."""
+        if self._best_model_key and self._best_model_key in self.models:
+            return self.models[self._best_model_key]
+        return list(self.models.values())[0] if self.models else None
+    
+    def get_model(self, model_key: str) -> PretrainedModelWrapper:
+        """Get a specific model by key."""
+        return self.models.get(model_key)
+    
+    def get_results_dataframe(self) -> pd.DataFrame:
+        """Get results as a DataFrame."""
+        return self.results_df

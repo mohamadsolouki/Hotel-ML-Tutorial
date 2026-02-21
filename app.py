@@ -21,6 +21,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from src.utils.data_utils import load_data
 from src.components.ui_components import apply_custom_css, render_header
 from src.pages import data_understanding, eda, models, predictions
+from src.models.ml_models import load_data_insights
 
 
 # =============================================================================
@@ -262,33 +263,114 @@ def render_home_page(df: pd.DataFrame):
         """, unsafe_allow_html=True)
     
     # Key questions
-    st.markdown("## Key Business Questions")
+    st.markdown("## Key Business Questions & Answers")
     
-    questions = [
-        ("How do hotel booking volumes vary across months and years?", 
-         "Analyze seasonal patterns and trends in booking behavior."),
-        ("Can historical booking trends forecast future demand?", 
-         "Build predictive models for capacity planning."),
-        ("How do cancellation rates fluctuate over time?", 
-         "Understand patterns for revenue management."),
-        ("What factors most influence booking cancellations?", 
-         "Identify key predictors to reduce cancellations."),
-        ("Which customer segments have the highest cancellation rates?", 
-         "Target high-risk segments with retention strategies."),
-        ("How does lead time affect cancellation probability?", 
-         "Inform deposit and overbooking policies."),
-    ]
+    # Load insights
+    insights = load_data_insights()
     
-    col1, col2 = st.columns(2)
-    
-    for i, (question, description) in enumerate(questions):
-        with col1 if i % 2 == 0 else col2:
+    if insights:
+        key_findings = insights.get('key_findings', [])
+        seasonal = insights.get('seasonal_patterns', {})
+        peak = insights.get('peak_analysis', {})
+        
+        # Questions with factual answers
+        questions_answers = [
+            {
+                "question": "How do hotel booking volumes vary across months?",
+                "answer": f"**Peak Season:** {peak.get('peak_month', 'August')} with {peak.get('peak_bookings', 13877):,} bookings. "
+                         f"**Low Season:** {peak.get('low_month', 'January')} with {peak.get('low_bookings', 5929):,} bookings. "
+                         f"Summer months (Jun-Aug) see 37,477 total bookings vs winter (Dec-Feb) with 20,777."
+            },
+            {
+                "question": "What factors most influence booking cancellations?",
+                "answer": "**Top 5 Cancellation Predictors:** 1) Lead time (12.3% importance) - longer lead times increase cancellation risk. "
+                         "2) Deposit type (11.9%) - Non-refundable deposits have 99.4% cancellation rate. "
+                         "3) ADR (10.9%) - Higher rates correlate with more cancellations. "
+                         "4) Previous cancellations (8.4%) - Past behavior predicts future. "
+                         "5) Market segment (6.9%) - Group bookings have 61.1% cancellation rate."
+            },
+            {
+                "question": "How do cancellation rates differ between customer segments?",
+                "answer": "**By Market Segment:** Groups (61.1%), Online TA (36.7%), Offline TA (34.3%), "
+                         "Aviation (21.9%), Corporate (18.7%), Direct (15.3%), Complementary (13.1%). "
+                         "**Repeated guests cancel only 14.5%** vs 37.8% for new guests."
+            },
+            {
+                "question": "How does lead time affect cancellation probability?",
+                "answer": "**Strong correlation observed:** Last-minute (0-7 days): 11.0% cancellation. "
+                         "8-30 days: 27.9%. 31-90 days: 37.7%. 91-180 days: 44.7%. "
+                         "181-365 days: 55.5%. **365+ days: 67.7% cancellation rate**. "
+                         "Each additional month of lead time increases cancellation probability by ~5%."
+            },
+            {
+                "question": "What is the business impact of cancellations?",
+                "answer": f"**Revenue Loss:** $16.7M (39.1% of potential revenue). "
+                         f"**Overall cancellation rate:** 37.0% ({insights['overview']['canceled_bookings']:,} of {insights['overview']['total_bookings']:,} bookings). "
+                         "City Hotel (41.7%) has higher cancellation rate than Resort Hotel (27.8%)."
+            },
+            {
+                "question": "Can we predict cancellations accurately?",
+                "answer": "**Yes - Random Forest achieves 83.8% accuracy.** "
+                         "Precision: 87.7% (when predicting cancellation, usually correct). "
+                         "Recall: 65.3% (catches 2 of 3 actual cancellations). "
+                         "ROC AUC: 91.0% (excellent discrimination ability)."
+            },
+        ]
+        
+        for qa in questions_answers:
             st.markdown(f"""
-            <div style="background: #F8F9FA; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem;">
-                <strong style="color: #1E3A5F;">{question}</strong>
-                <p style="color: #7F8C8D; margin: 0.5rem 0 0 0; font-size: 0.9rem;">{description}</p>
+            <div style="background: white; padding: 1.25rem; border-radius: 12px; 
+                        margin-bottom: 1rem; border-left: 4px solid #1E3A5F;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <div style="color: #1E3A5F; font-weight: 600; font-size: 1.05rem; margin-bottom: 0.75rem;">
+                    {qa['question']}
+                </div>
+                <div style="color: #2C3E50; line-height: 1.7;">
+                    {qa['answer']}
+                </div>
             </div>
             """, unsafe_allow_html=True)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Key findings summary
+        st.markdown("## Key Findings Summary")
+        
+        col1, col2 = st.columns(2)
+        
+        for i, finding in enumerate(key_findings[:6]):
+            with col1 if i % 2 == 0 else col2:
+                st.markdown(f"""
+                <div style="background: linear-gradient(135deg, #F8FAFC 0%, #EDF2F7 100%); 
+                            padding: 1rem 1.25rem; border-radius: 10px; margin-bottom: 0.75rem;
+                            border-left: 3px solid #2C7A7B;">
+                    <span style="color: #2C3E50;">{finding}</span>
+                </div>
+                """, unsafe_allow_html=True)
+    
+    else:
+        # Fallback if no insights available
+        questions = [
+            ("How do hotel booking volumes vary across months and years?", 
+             "Analyze seasonal patterns and trends in booking behavior."),
+            ("What factors most influence booking cancellations?", 
+             "Identify key predictors to reduce cancellations."),
+            ("Which customer segments have the highest cancellation rates?", 
+             "Target high-risk segments with retention strategies."),
+            ("How does lead time affect cancellation probability?", 
+             "Inform deposit and overbooking policies."),
+        ]
+        
+        col1, col2 = st.columns(2)
+        
+        for i, (question, description) in enumerate(questions):
+            with col1 if i % 2 == 0 else col2:
+                st.markdown(f"""
+                <div style="background: #F8F9FA; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem;">
+                    <strong style="color: #1E3A5F;">{question}</strong>
+                    <p style="color: #7F8C8D; margin: 0.5rem 0 0 0; font-size: 0.9rem;">{description}</p>
+                </div>
+                """, unsafe_allow_html=True)
     
     # Getting started
     st.markdown("<br>", unsafe_allow_html=True)

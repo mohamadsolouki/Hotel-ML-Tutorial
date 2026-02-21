@@ -13,7 +13,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from src.components.ui_components import (
-    render_section_header, render_info_box, render_learning_objectives,
+    render_section_header, render_info_box,
     render_methodology_explanation, render_kpi_row, render_progress_stepper,
     render_code_block
 )
@@ -22,19 +22,34 @@ from src.utils.viz_utils import (
 )
 from src.models.ml_models import (
     CancellationPredictionModel, ModelComparison, 
-    get_model_explanation, calculate_business_metrics
+    get_model_explanation, calculate_business_metrics,
+    get_pretrained_model_results, load_data_insights,
+    PretrainedModelComparison
 )
 from src.config import RANDOM_STATE, TEST_SIZE, CV_FOLDS
+
+
+def initialize_pretrained_models():
+    """Initialize session state with pre-trained model results."""
+    if 'models_initialized' not in st.session_state:
+        # Load pretrained models into a comparison object
+        comparison = PretrainedModelComparison.from_pretrained()
+        
+        if comparison is not None:
+            st.session_state['model_comparison'] = comparison
+            st.session_state['model_results'] = comparison.get_results_dataframe()
+            st.session_state['pretrained_results'] = get_pretrained_model_results()
+            st.session_state['pretrained_loaded'] = True
+        else:
+            st.session_state['pretrained_loaded'] = False
+        
+        st.session_state['models_initialized'] = True
 
 
 def render_model_overview():
     """Render model overview and theory section."""
     
     render_section_header("Machine Learning Overview", "psychology")
-    
-    render_learning_objectives("models")
-    
-    st.markdown("---")
     
     render_info_box(
         """In this section, we will build machine learning models to predict hotel booking 
@@ -275,6 +290,145 @@ def render_model_training(df: pd.DataFrame):
         render_model_results()
 
 
+def render_pretrained_results():
+    """Render pre-trained model results."""
+    
+    render_section_header("Pre-trained Model Results", "leaderboard")
+    
+    if not st.session_state.get('pretrained_loaded', False):
+        render_info_box(
+            "Pre-trained models could not be loaded. Please check the models directory.",
+            title="Models Not Available",
+            box_type="warning"
+        )
+        return
+    
+    pretrained = st.session_state['pretrained_results']
+    results = pretrained['results']
+    
+    render_info_box(
+        """These models were trained on the full dataset (119,390 bookings) with 80/20 train-test split. 
+        All models use the same preprocessing pipeline and features to ensure fair comparison."""
+    )
+    
+    # Build results dataframe
+    model_names = {
+        'logistic_regression': 'Logistic Regression',
+        'random_forest': 'Random Forest',
+        'gradient_boosting': 'Gradient Boosting',
+        'decision_tree': 'Decision Tree',
+        'knn': 'K-Nearest Neighbors'
+    }
+    
+    rows = []
+    for model_key, display_name in model_names.items():
+        if model_key in results:
+            r = results[model_key]
+            rows.append({
+                'Model': display_name,
+                'Accuracy': f"{r['accuracy']:.4f}",
+                'Precision': f"{r['precision']:.4f}",
+                'Recall': f"{r['recall']:.4f}",
+                'F1 Score': f"{r['f1_score']:.4f}",
+                'ROC AUC': f"{r['roc_auc']:.4f}"
+            })
+    
+    import pandas as pd
+    results_df = pd.DataFrame(rows)
+    
+    st.markdown("#### Performance Metrics Comparison")
+    st.dataframe(results_df, use_container_width=True, hide_index=True)
+    
+    # Best model highlight
+    best_f1 = 0
+    best_model = ""
+    for model_key, r in results.items():
+        if r['f1_score'] > best_f1:
+            best_f1 = r['f1_score']
+            best_model = model_names.get(model_key, model_key)
+    
+    render_info_box(
+        f"""**Best Model: {best_model}** with F1 Score of {best_f1:.4f}
+        
+        The Random Forest model achieves the best balance between precision and recall:
+        - **Precision (87.7%)**: When the model predicts a cancellation, it's correct 87.7% of the time
+        - **Recall (65.3%)**: The model catches 65.3% of all actual cancellations
+        - **ROC AUC (91.0%)**: Excellent ability to distinguish between cancellers and non-cancellers""",
+        title="Best Performing Model",
+        box_type="success"
+    )
+    
+    # Feature importance
+    st.markdown("---")
+    st.markdown("#### Feature Importance (Random Forest)")
+    
+    if 'feature_importance' in pretrained and 'random_forest' in pretrained['feature_importance']:
+        fi = pretrained['feature_importance']['random_forest']
+        sorted_features = sorted(fi.items(), key=lambda x: x[1], reverse=True)[:10]
+        
+        from src.utils.viz_utils import plot_feature_importance
+        feature_names = [f[0] for f in sorted_features]
+        importances = [f[1] for f in sorted_features]
+        
+        fig = plot_feature_importance(feature_names, importances, "Top 10 Most Important Features")
+        st.plotly_chart(fig, use_container_width=True)
+        
+        render_info_box(
+            """**Key Predictors of Cancellation:**
+            
+            1. **lead_time** (12.3%): Longer lead times = higher cancellation risk
+            2. **deposit_type** (11.9%): Non-refundable deposits have 99% cancellation rate
+            3. **adr** (10.9%): Higher daily rates correlate with more cancellations
+            4. **previous_cancellations** (8.4%): Past behavior predicts future behavior
+            5. **market_segment** (6.9%): Group bookings cancel 61% of the time""",
+            title="Feature Importance Insights",
+            box_type="info"
+        )
+    
+    # Confusion matrix for best model
+    st.markdown("---")
+    st.markdown("#### Model Error Analysis")
+    
+    if 'random_forest' in results:
+        rf_results = results['random_forest']
+        cm = rf_results['confusion_matrix']
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            from src.utils.viz_utils import plot_confusion_matrix
+            import numpy as np
+            fig = plot_confusion_matrix(
+                np.array(cm),
+                ['Not Canceled', 'Canceled'],
+                "Confusion Matrix (Random Forest)"
+            )
+            st.plotly_chart(fig, use_container_width=True)
+        
+        with col2:
+            tn, fp, fn, tp = cm[0][0], cm[0][1], cm[1][0], cm[1][1]
+            total = tn + fp + fn + tp
+            
+            st.markdown(f"""
+            **Breakdown of Predictions:**
+            
+            | Outcome | Count | Percentage |
+            |---------|-------|------------|
+            | True Negatives (Correct: Not Canceled) | {tn:,} | {tn/total*100:.1f}% |
+            | True Positives (Correct: Canceled) | {tp:,} | {tp/total*100:.1f}% |
+            | False Negatives (Missed Cancellations) | {fn:,} | {fn/total*100:.1f}% |
+            | False Positives (False Alarms) | {fp:,} | {fp/total*100:.1f}% |
+            """)
+            
+            render_info_box(
+                f"""**Business Impact:**
+                - The model misses {fn:,} cancellations (12.8% of test set)
+                - False alarms affect {fp:,} bookings (3.4% of test set)
+                - Overall accuracy: {(tn+tp)/total*100:.1f}%""",
+                box_type="warning"
+            )
+
+
 def render_model_results():
     """Render model comparison results."""
     
@@ -387,7 +541,7 @@ def render_model_evaluation(df: pd.DataFrame):
     
     with col2:
         st.markdown("#### ROC Curve")
-        if 'roc_auc' in metrics:
+        if 'roc_auc' in metrics and 'fpr' in metrics and 'tpr' in metrics:
             fig = plot_roc_curve(
                 metrics['fpr'], metrics['tpr'], metrics['roc_auc']
             )
@@ -399,6 +553,30 @@ def render_model_evaluation(df: pd.DataFrame):
                 The ROC curve plots True Positive Rate vs False Positive Rate at various 
                 threshold settings. AUC closer to 1.0 indicates better discrimination 
                 between classes. A random classifier would have AUC = 0.5."""
+            )
+        elif 'roc_auc' in metrics:
+            # Show AUC score without the curve for pretrained models
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, #1E3A5F 0%, #3D5A80 100%); 
+                        padding: 2rem; border-radius: 12px; text-align: center; color: white;">
+                <div style="font-size: 0.9rem; opacity: 0.9;">ROC AUC Score</div>
+                <div style="font-size: 3rem; font-weight: 700;">{metrics['roc_auc']:.4f}</div>
+                <div style="font-size: 0.9rem; opacity: 0.8;">Excellent discrimination ability</div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            render_info_box(
+                f"""**ROC AUC Score: {metrics['roc_auc']:.4f}**
+                
+                - **0.9-1.0**: Excellent discrimination
+                - **0.8-0.9**: Good discrimination
+                - **0.7-0.8**: Fair discrimination
+                - **< 0.7**: Poor discrimination
+                
+                Our model's AUC of {metrics['roc_auc']:.4f} indicates {'excellent' if metrics['roc_auc'] >= 0.9 else 'good' if metrics['roc_auc'] >= 0.8 else 'fair'} 
+                ability to distinguish between cancellations and non-cancellations."""
             )
         else:
             st.info("ROC curve not available for this model type.")
@@ -444,6 +622,35 @@ def render_model_evaluation(df: pd.DataFrame):
     st.code(report, language="text")
 
 
+def calculate_business_metrics_from_cm(
+    tp: int, fp: int, fn: int, tn: int,
+    avg_booking_value: float = 100.0,
+    overbooking_cost_pct: float = 50.0
+) -> dict:
+    """Calculate business metrics from confusion matrix values."""
+    # Potential revenue saved by correctly predicting cancellations
+    potential_savings = tp * avg_booking_value
+    
+    # Revenue potentially lost due to overbooking (false positives)
+    potential_loss = fp * avg_booking_value * (overbooking_cost_pct / 100)
+    
+    # Total predictions and actual cancellations
+    predicted_cancellations = tp + fp
+    actual_cancellations = tp + fn
+    
+    return {
+        'predicted_cancellations': predicted_cancellations,
+        'actual_cancellations': actual_cancellations,
+        'correctly_predicted': tp,
+        'false_alarms': fp,
+        'missed_cancellations': fn,
+        'potential_savings': potential_savings,
+        'potential_overbooking_loss': potential_loss,
+        'net_benefit': potential_savings - potential_loss,
+        'avg_cancellation_probability': actual_cancellations / (tp + fp + fn + tn) if (tp + fp + fn + tn) > 0 else 0
+    }
+
+
 def render_business_impact(df: pd.DataFrame):
     """Render business impact analysis."""
     
@@ -459,7 +666,6 @@ def render_business_impact(df: pd.DataFrame):
     
     comparison = st.session_state['model_comparison']
     best_model = comparison.get_best_model()
-    trained_df = st.session_state.get('trained_df', df)
     
     render_info_box(
         """Understanding the business impact of model predictions is crucial for 
@@ -485,10 +691,15 @@ def render_business_impact(df: pd.DataFrame):
             10, 100, 50, 5
         )
     
-    # Calculate impact
-    predictions, probabilities = best_model.predict(trained_df)
-    business_metrics = calculate_business_metrics(
-        trained_df, predictions, probabilities, avg_booking_value
+    # Get confusion matrix from pretrained model metrics
+    metrics = best_model.metrics
+    cm = metrics.get('confusion_matrix', [[0, 0], [0, 0]])
+    tn, fp = cm[0][0], cm[0][1]
+    fn, tp = cm[1][0], cm[1][1]
+    
+    # Calculate business metrics from stored confusion matrix
+    business_metrics = calculate_business_metrics_from_cm(
+        tp, fp, fn, tn, avg_booking_value, overbooking_cost_pct
     )
     
     # Display metrics
@@ -573,10 +784,13 @@ def render_business_impact(df: pd.DataFrame):
 def render_page(df: pd.DataFrame):
     """Main render function for the Models page."""
     
+    # Initialize pre-trained models
+    initialize_pretrained_models()
+    
     tabs = st.tabs([
         "Overview",
         "Preprocessing",
-        "Training",
+        "Model Results",
         "Evaluation",
         "Business Impact"
     ])
@@ -588,7 +802,7 @@ def render_page(df: pd.DataFrame):
         render_preprocessing_explanation(df)
     
     with tabs[2]:
-        render_model_training(df)
+        render_pretrained_results()
     
     with tabs[3]:
         render_model_evaluation(df)

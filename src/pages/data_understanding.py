@@ -12,7 +12,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from src.components.ui_components import (
-    render_section_header, render_info_box, render_learning_objectives,
+    render_section_header, render_info_box,
     render_methodology_explanation, render_kpi_row, render_dataframe_preview,
     create_download_button
 )
@@ -22,15 +22,11 @@ from src.utils.viz_utils import (
     plot_pie_chart, plot_correlation_matrix
 )
 from src.config import CATEGORICAL_COLUMNS, NUMERICAL_COLUMNS, BUSINESS_QUESTIONS
+from src.models.ml_models import load_data_insights
 
 
 def render_data_overview(df: pd.DataFrame):
     """Render the data overview section."""
-    
-    # Learning objectives
-    render_learning_objectives("overview")
-    
-    st.markdown("---")
     
     # Dataset Summary
     render_section_header("Dataset Overview", "summarize")
